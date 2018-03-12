@@ -10,6 +10,7 @@ import (
 )
 
 func getMyMeasures() string {
+	// @bot measure hogehogeでswitch
 	return "your-measures-value"
 }
 
@@ -27,14 +28,13 @@ func main() {
 	for msg := range rtm.IncomingEvents {
 		fmt.Print("EventReceived: ")
 		switch ev := msg.Data.(type) {
+
 		case *slack.HelloEvent:
 			// Ignore hello
 
 		case *slack.ConnectedEvent:
 			//fmt.Println("Infos:", ev.Info)
 			//fmt.Println("Connection counter:", ev.ConnectionCount)
-			//Replace C2147483705 with your Channel ID
-			//rtm.SendMessage(rtm.NewOutgoingMessage("Hello world", "C2147483705"))
 
 		case *slack.MessageEvent:
 			fmt.Printf("Message: %v\n", ev)
@@ -43,11 +43,11 @@ func main() {
 			if strings.HasPrefix(ev.Msg.Text, "<@"+botUserID+">") {
 				args := strings.Split(ev.Msg.Text, " ")
 				if len(args) <= 1 {
+					rtm.SendMessage(rtm.NewOutgoingMessage("機能一覧はこちらです！", ev.Channel))
 					break
 				}
 				switch args[1] {
 				case "measure":
-					fmt.Printf("Measure: ")
 					fmt.Println(getMyMeasures())
 				}
 			}
