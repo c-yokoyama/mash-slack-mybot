@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"mash-slack-mybot/nokiahealth"
 	"os"
 	"strings"
 	//"mash-slack-mybot/nokiahealth"
@@ -21,6 +22,8 @@ func main() {
 	logger := log.New(os.Stdout, "slack-bot: ", log.Lshortfile|log.LstdFlags)
 	slack.SetLogger(logger)
 	api.SetDebug(true)
+
+	nokiahealth.InitUser()
 
 	rtm := api.NewRTM()
 	go rtm.ManageConnection()
