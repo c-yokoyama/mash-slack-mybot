@@ -5,6 +5,6 @@ import (
 )
 
 func TestGetTodayBodyMeasure(t *testing.T) {
-	u := InitUser()
+	u := NewNokiaHealthUser()
 	GetTodayBodyMeasure(u)
 }
