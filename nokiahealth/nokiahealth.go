@@ -18,7 +18,7 @@ type MeasureData struct {
 	muscleMass float64
 }
 
-// InitUser initializes nokiahealth user with user credentislas
+// NewNokiaHealthUser initializes nokiahealth user with user credentislas
 func NewNokiaHealthUser() User {
 	client := NewClient(os.Getenv("NOKIA_COUSUMER_KEY"), os.Getenv("NOKIT_CONSUMER_SECRET"), "")
 	userid, _ := strconv.Atoi(os.Getenv("NOKIA_USERID"))
@@ -37,13 +37,11 @@ func NewNokiaHealthUser() User {
 	return u
 }
 
-func GetTodayBodyMeasure(u User) MeasureData {
+func getBodyMeasureWithDay(u User, d int) MeasureData {
 	res := MeasureData{}
 	p := BodyMeasuresQueryParams{}
-	day := time.Now().AddDate(0, 0, -1)
-	l := 1
-	p.StartDate = &day
-	p.Limit = &l
+	day := time.Now().AddDate(0, 0, d)
+	p.EndDate = &day
 
 	m, err := u.GetBodyMeasures(&p)
 	if err != nil {
@@ -54,20 +52,50 @@ func GetTodayBodyMeasure(u User) MeasureData {
 	res.fatWight = m.ParseData().FatMassWeights[0].Kgs
 	res.muscleMass = m.ParseData().MuscleMasses[0].Mass
 
-	fmt.Println(res)
+	fmt.Printf("day: %v, res: %v\n", day, res)
 
 	return res
 }
 
-func GetYesterdayBodyMeasure(u User) {
+func GetTodayBodyMeasure(u User) MeasureData {
+	return getBodyMeasureWithDay(u, 0)
+}
+
+func getYesterdayBodyMeasure(u User) MeasureData {
+	return getBodyMeasureWithDay(u, -1)
+}
+
+func getWeekAgoBodyMeasure(u User) MeasureData {
+	return getBodyMeasureWithDay(u, -7)
 
 }
 
-func GetWeekAgoBodyMeasure(u User) {
+func DiffTodayYesterdayMeasure(u User) MeasureData {
+	res := MeasureData{}
+	today := GetTodayBodyMeasure(u)
+	yestday := getYesterdayBodyMeasure(u)
 
+	res.weight = today.weight - yestday.weight
+	res.fatRatio = today.fatRatio - yestday.fatRatio
+	res.fatWight = today.fatWight - yestday.fatWight
+	res.muscleMass = today.muscleMass - yestday.muscleMass
+
+	//fmt.Printf("DiffTodayYesterdayMeasure: res: %v\n", res)
+
+	return res
 }
 
-// 1週間前、1日前との比較値、cronで見せる用
-func NotifyMeasures(user User) {
+func DiffTodayWeekAgoMeasure(u User) MeasureData {
+	res := MeasureData{}
+	today := GetTodayBodyMeasure(u)
+	weekago := getWeekAgoBodyMeasure(u)
 
+	res.weight = today.weight - weekago.weight
+	res.fatRatio = today.fatRatio - weekago.fatRatio
+	res.fatWight = today.fatWight - weekago.fatWight
+	res.muscleMass = today.muscleMass - weekago.muscleMass
+
+	//fmt.Printf("DiffTodayWeekAgoMeasure: res: %v\n", res)
+
+	return res
 }

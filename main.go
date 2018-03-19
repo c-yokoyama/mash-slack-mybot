@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 	"strings"
-	//"mash-slack-mybot/nokiahealth"
+	//"mash-sla qck-mybot/nokiahealth"
 	"github.com/nlopes/slack"
 )
 
