@@ -5,19 +5,44 @@ import (
 	"log"
 	"mash-slack-mybot/mynokiahealth"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/jrmycanady/nokiahealth"
 	"github.com/nlopes/slack"
 )
 
-var botHelp = `
-@
-`
+func getHelpStr(botUserID string) string {
+	help := "機能一覧です！\n" +
+		"<@" + botUserID + "> measure: 本日(最新)の測定結果を表示します\n" +
+		"<@" + botUserID + "> measure goal: 本日(最新)の測定結果と目標体重の差分を表示します\n" +
+		"<@" + botUserID + "> measure set goal <value>: 目標体重を設定します\n" +
+		"<@" + botUserID + "> help: 機能一覧を表示します\n" +
+		"\n"
+	return help
+}
 
 func getMyMeasures(u nokiahealth.User, args []string) string {
-	// @bot measure hogehogeでswitch
-	return "your-measures-value"
+	switch args[0] {
+	case "":
+		// cron, detail diff
+		return "本日(最新)の測定結果を表示します"
+	case "goal":
+		return "本日(最新)の測定結果と目標体重の差分を表示します"
+	case "set":
+		if args[1] != "goal" || len(args) != 3 {
+			return "`measure set goal <value>` ですよ。"
+		}
+		goal, err := strconv.ParseFloat(args[2], 32)
+		if err != nil {
+			return "値が間違っています。"
+		}
+		mynokiahealth.SetWeightGoal(float32(goal))
+		return "目標を設定しました。"
+
+	default:
+		return "値が間違っています。"
+	}
 }
 
 func main() {
@@ -38,14 +63,13 @@ func main() {
 		case *slack.ConnectedEvent:
 			//fmt.Println("Infos:", ev.Info)
 			//fmt.Println("Connection counter:", ev.ConnectionCount)
-
 		case *slack.MessageEvent:
 			fmt.Printf("Message: %v\n", ev)
 			// Msg includes mention to botUser
 			if strings.HasPrefix(ev.Msg.Text, "<@"+botUserID+">") {
 				args := strings.Split(ev.Msg.Text, " ")
 				if len(args) <= 1 {
-					rtm.SendMessage(rtm.NewOutgoingMessage("機能一覧です！"+botHelp, ev.Channel))
+					rtm.SendMessage(rtm.NewOutgoingMessage(getHelpStr(botUserID), ev.Channel))
 					break
 				}
 				switch args[1] {
@@ -53,9 +77,11 @@ func main() {
 					res := getMyMeasures(nokiaUser, args[2:])
 					fmt.Println("Measure Res: " + res)
 					rtm.SendMessage(rtm.NewOutgoingMessage(res, ev.Channel))
+
+				case "help":
+					rtm.SendMessage(rtm.NewOutgoingMessage(getHelpStr(botUserID), ev.Channel))
 				}
 			}
-
 		case *slack.PresenceChangeEvent:
 			//fmt.Printf("Presence Change: %v\n", ev)
 

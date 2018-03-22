@@ -103,6 +103,7 @@ func DiffTodayWeekAgoMeasure(u User) MeasureData {
 
 func DiffTodayWeightGoal(u User) float32 {
 	today := GetTodayBodyMeasure(u)
+	//四捨五入してかえす
 	return today.weight - getWeightGoal()
 
 }
