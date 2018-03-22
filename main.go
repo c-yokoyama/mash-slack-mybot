@@ -23,29 +23,36 @@ func getHelpStr(botUserID string) string {
 }
 
 func getMyMeasures(u nokiahealth.User, args []string) string {
-	switch args[0] {
-	case "":
+	if len(args) == 0 {
 		// cron, detail diff
 		today := mynokiahealth.GetTodayBodyMeasure(u)
-		diffDay := mynokiahealth.DiffTodayYesterdayMeasure(u)
-		diffWeek := mynokiahealth.DiffTodayWeekAgoMeasure(u)
-		diffGoal := mynokiahealth.DiffTodayWeightGoal(u)
+		/*
+			diffDay := mynokiahealth.DiffTodayYesterdayMeasure(u)
+			diffWeek := mynokiahealth.DiffTodayWeekAgoMeasure(u)
+			diffGoal := mynokiahealth.DiffTodayWeightGoal(u)
+		*/
 
-		res := "本日の測定結果は%.2f\n", today.Weight +
-			"hoge\n"
-
+		res := "本日の測定結果は\n" +
+			"体重" + today.Weight + "kg\n" +
+			"体脂肪率" + today.FatRatio + "%\n" +
+			"体脂肪量" + today.FatWight + "kg\n" +
+			"筋肉量" + today.MuscleMass + "kg\n" +
+			"です！"
 		return res
+	}
+
+	switch args[0] {
 	case "goal":
 		return "本日(最新)の測定結果と目標体重の差分を表示します"
 	case "set":
 		if args[1] != "goal" || len(args) != 3 {
 			return "`measure set goal <value>` ですよ。"
 		}
-		goal, err := strconv.ParseFloat(args[2], 32)
+		goal, err := strconv.ParseFloat(args[2], 64)
 		if err != nil {
 			return "値が間違っています。"
 		}
-		mynokiahealth.SetWeightGoal(float32(goal))
+		mynokiahealth.SetWeightGoal(goal)
 		return "目標を設定しました。"
 
 	default:

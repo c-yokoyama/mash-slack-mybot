@@ -113,8 +113,8 @@ func DiffTodayWeightGoal(u User) string {
 
 }
 
-func SetWeightGoal(goal string) {
-	goalWeight = goal
+func SetWeightGoal(goal float64) {
+	goalWeight = strconv.FormatFloat(goal, 'g', 4, 64)
 }
 
 func getWeightGoal() string {
