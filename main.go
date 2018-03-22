@@ -26,7 +26,15 @@ func getMyMeasures(u nokiahealth.User, args []string) string {
 	switch args[0] {
 	case "":
 		// cron, detail diff
-		return "本日(最新)の測定結果を表示します"
+		today := mynokiahealth.GetTodayBodyMeasure(u)
+		diffDay := mynokiahealth.DiffTodayYesterdayMeasure(u)
+		diffWeek := mynokiahealth.DiffTodayWeekAgoMeasure(u)
+		diffGoal := mynokiahealth.DiffTodayWeightGoal(u)
+
+		res := "本日の測定結果は%.2f\n", today.Weight +
+			"hoge\n"
+
+		return res
 	case "goal":
 		return "本日(最新)の測定結果と目標体重の差分を表示します"
 	case "set":
