@@ -1,6 +1,7 @@
 package nokiahealth
 
 import (
+	"reflect"
 	"testing"
 )
 
@@ -28,4 +29,13 @@ func TestDiffTodayWeekAgoMeasure(t *testing.T) {
 	u := NewNokiaHealthUser()
 	DiffTodayWeekAgoMeasure(u)
 
+}
+
+func TestDiffTodayWeightGoal(t *testing.T) {
+	u := NewNokiaHealthUser()
+	res := DiffTodayWeightGoal(u)
+	resType := reflect.TypeOf(res).String()
+	if resType != "float32" {
+		t.Errorf("Expected: float32, Actual: %s\n", resType)
+	}
 }

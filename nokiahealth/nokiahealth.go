@@ -2,7 +2,6 @@ package nokiahealth
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -12,11 +11,13 @@ import (
 )
 
 type MeasureData struct {
-	weight     float64
-	fatRatio   float64
-	fatWight   float64
-	muscleMass float64
+	weight     float32
+	fatRatio   float32
+	fatWight   float32
+	muscleMass float32
 }
+
+var goalWeight float32 = 70.5
 
 // NewNokiaHealthUser initializes nokiahealth user with user credentislas
 func NewNokiaHealthUser() User {
@@ -47,12 +48,12 @@ func getBodyMeasureWithDay(u User, d int) MeasureData {
 	if err != nil {
 		log.Fatal(err)
 	}
-	res.weight = m.ParseData().Weights[0].Kgs
-	res.fatRatio = m.ParseData().FatRatios[0].Ratio
-	res.fatWight = m.ParseData().FatMassWeights[0].Kgs
-	res.muscleMass = m.ParseData().MuscleMasses[0].Mass
+	res.weight = float32(m.ParseData().Weights[0].Kgs)
+	res.fatRatio = float32(m.ParseData().FatRatios[0].Ratio)
+	res.fatWight = float32(m.ParseData().FatMassWeights[0].Kgs)
+	res.muscleMass = float32(m.ParseData().MuscleMasses[0].Mass)
 
-	fmt.Printf("day: %v, res: %v\n", day, res)
+	//fmt.Printf("Day: %v, Res: %v\n", day, res)
 
 	return res
 }
@@ -98,4 +99,18 @@ func DiffTodayWeekAgoMeasure(u User) MeasureData {
 	//fmt.Printf("DiffTodayWeekAgoMeasure: res: %v\n", res)
 
 	return res
+}
+
+func DiffTodayWeightGoal(u User) float32 {
+	today := GetTodayBodyMeasure(u)
+	return today.weight - getWeightGoal()
+
+}
+
+func SetWeightGoal(goal float32) {
+	goalWeight = goal
+}
+
+func getWeightGoal() float32 {
+	return goalWeight
 }
