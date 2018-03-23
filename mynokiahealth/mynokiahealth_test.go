@@ -5,19 +5,11 @@ import (
 	"testing"
 )
 
-func TestGetTodayBodyMeasure(t *testing.T) {
+func TestgetBodyMeasureWithDay(t *testing.T) {
 	u := NewNokiaHealthUser()
-	GetTodayBodyMeasure(u)
-}
-
-func TestGetYesterdayBodyMeasure(t *testing.T) {
-	u := NewNokiaHealthUser()
-	getYesterdayBodyMeasure(u)
-}
-
-func TestWeekAgoBodyMeasure(t *testing.T) {
-	u := NewNokiaHealthUser()
-	getWeekAgoBodyMeasure(u)
+	getBodyMeasureWithDay(u, 0)
+	getBodyMeasureWithDay(u, -1)
+	getBodyMeasureWithDay(u, -7)
 }
 
 func TestDiffTodayYesterdayMeasure(t *testing.T) {

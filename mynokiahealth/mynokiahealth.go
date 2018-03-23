@@ -2,7 +2,6 @@ package mynokiahealth
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -54,7 +53,7 @@ func getBodyMeasureWithDay(u User, d int) MeasureData {
 	res.FatWight = strconv.FormatFloat(m.ParseData().FatMassWeights[0].Kgs, 'g', 4, 64)
 	res.MuscleMass = strconv.FormatFloat(m.ParseData().MuscleMasses[0].Mass, 'g', 4, 64)
 
-	fmt.Printf("Day: %v, Res: %v\n", day, res)
+	//fmt.Printf("Day: %v, Res: %v\n", day, res)
 
 	return res
 }
@@ -76,7 +75,11 @@ func diffStrWithFloat(a string, b string) string {
 	f32a, _ := strconv.ParseFloat(a, 32)
 	f32b, _ := strconv.ParseFloat(b, 32)
 	diff := f32a - f32b
-	return strconv.FormatFloat(diff, 'g', 4, 32)
+	res := strconv.FormatFloat(diff, 'g', 4, 32)
+	if diff > 0 {
+		res = "+" + res
+	}
+	return res
 }
 
 func DiffTodayYesterdayMeasure(u User) MeasureData {
@@ -88,7 +91,7 @@ func DiffTodayYesterdayMeasure(u User) MeasureData {
 	res.FatWight = diffStrWithFloat(today.FatWight, yestday.FatWight)
 	res.MuscleMass = diffStrWithFloat(today.MuscleMass, yestday.MuscleMass)
 
-	fmt.Printf("DiffTodayYesterdayMeasure: res: %v\n", res)
+	//fmt.Printf("DiffTodayYesterdayMeasure: res: %v\n", res)
 
 	return res
 }
@@ -102,7 +105,7 @@ func DiffTodayWeekAgoMeasure(u User) MeasureData {
 	res.FatWight = diffStrWithFloat(today.FatWight, weekago.FatWight)
 	res.MuscleMass = diffStrWithFloat(today.MuscleMass, weekago.MuscleMass)
 
-	fmt.Printf("DiffTodayWeekAgoMeasure: res: %v\n", res)
+	//fmt.Printf("DiffTodayWeekAgoMeasure: res: %v\n", res)
 
 	return res
 }

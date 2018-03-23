@@ -10,7 +10,13 @@ import (
 
 	"github.com/jrmycanady/nokiahealth"
 	"github.com/nlopes/slack"
+	"gopkg.in/robfig/cron.v2"
 )
+
+var rtm *slack.RTM
+var nokiaUser nokiahealth.User
+
+const cronSpec = "TZ=Asia/Tokyo 30 11 * * * *"
 
 func getHelpStr(botUserID string) string {
 	help := "機能一覧です！\n" +
@@ -22,28 +28,55 @@ func getHelpStr(botUserID string) string {
 	return help
 }
 
+func getMeasureDetail(u nokiahealth.User) string {
+	today := mynokiahealth.GetTodayBodyMeasure(u)
+	diffDay := mynokiahealth.DiffTodayYesterdayMeasure(u)
+	diffWeek := mynokiahealth.DiffTodayWeekAgoMeasure(u)
+	diffGoal := mynokiahealth.DiffTodayWeightGoal(u)
+
+	res := "最新の測定結果は、\n" +
+		"-------------------\n" +
+		"体重 `" + today.Weight + "kg` \n" +
+		"体脂肪率 `" + today.FatRatio + "%` \n" +
+		"体脂肪量 `" + today.FatWight + "kg `\n" +
+		"筋肉量 `" + today.MuscleMass + "kg `\n" +
+		"-------------------\n" +
+		"です！\n" +
+		"前回測定時との差分は、\n" +
+		"-------------------\n" +
+		"体重 `" + diffDay.Weight + "kg` \n" +
+		"体脂肪量 `" + diffDay.FatWight + "kg `\n" +
+		"筋肉量 `" + diffDay.MuscleMass + "kg `\n" +
+		"-------------------\n" +
+		"です！\n" +
+		"約1週間前の測定時との差分は、\n" +
+		"-------------------\n" +
+		"体重 `" + diffWeek.Weight + "kg` \n" +
+		"体脂肪量 `" + diffWeek.FatWight + "kg `\n" +
+		"筋肉量 `" + diffWeek.MuscleMass + "kg `\n" +
+		"-------------------\n" +
+		"です！\n" +
+		"目標体重との差分は `" + diffGoal + "kg` です、頑張りましょう。\n"
+
+	return res
+}
+
+func sendCronMessage() {
+	res := getMeasureDetail(nokiaUser)
+	cronChanID := os.Getenv("CRON_CHAN_ID")
+	fmt.Println("cronChanID: " + cronChanID)
+	rtm.SendMessage(rtm.NewOutgoingMessage(res, cronChanID))
+}
+
 func getMyMeasures(u nokiahealth.User, args []string) string {
 	if len(args) == 0 {
-		// cron, detail diff
-		today := mynokiahealth.GetTodayBodyMeasure(u)
-		/*
-			diffDay := mynokiahealth.DiffTodayYesterdayMeasure(u)
-			diffWeek := mynokiahealth.DiffTodayWeekAgoMeasure(u)
-			diffGoal := mynokiahealth.DiffTodayWeightGoal(u)
-		*/
-
-		res := "本日の測定結果は\n" +
-			"体重" + today.Weight + "kg\n" +
-			"体脂肪率" + today.FatRatio + "%\n" +
-			"体脂肪量" + today.FatWight + "kg\n" +
-			"筋肉量" + today.MuscleMass + "kg\n" +
-			"です！"
-		return res
+		return getMeasureDetail(u)
 	}
 
 	switch args[0] {
 	case "goal":
-		return "本日(最新)の測定結果と目標体重の差分を表示します"
+		diffGoal := mynokiahealth.DiffTodayWeightGoal(u)
+		return "最新の測定結果と目標体重との差分は `" + diffGoal + "kg` です、頑張りましょう。\n"
 	case "set":
 		if args[1] != "goal" || len(args) != 3 {
 			return "`measure set goal <value>` ですよ。"
@@ -56,7 +89,7 @@ func getMyMeasures(u nokiahealth.User, args []string) string {
 		return "目標を設定しました。"
 
 	default:
-		return "値が間違っています。"
+		return "コマンドが間違っています。"
 	}
 }
 
@@ -67,10 +100,13 @@ func main() {
 	logger := log.New(os.Stdout, "slack-bot: ", log.Lshortfile|log.LstdFlags)
 	slack.SetLogger(logger)
 	api.SetDebug(true)
-	rtm := api.NewRTM()
+	rtm = api.NewRTM()
 	go rtm.ManageConnection()
 
-	nokiaUser := mynokiahealth.NewNokiaHealthUser()
+	nokiaUser = mynokiahealth.NewNokiaHealthUser()
+	c := cron.New()
+	c.AddFunc(cronSpec, sendCronMessage)
+	c.Start()
 
 	for msg := range rtm.IncomingEvents {
 		fmt.Print("EventReceived: ")
@@ -90,7 +126,6 @@ func main() {
 				switch args[1] {
 				case "measure":
 					res := getMyMeasures(nokiaUser, args[2:])
-					fmt.Println("Measure Res: " + res)
 					rtm.SendMessage(rtm.NewOutgoingMessage(res, ev.Channel))
 
 				case "help":
