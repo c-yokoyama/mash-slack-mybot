@@ -2,13 +2,19 @@
 
 ## Getting Started
 
+### Use dep
+
 ```
-source credentials.sh
+$ go get -u github.com/golang/dep/cmd/dep
+$ dep ensure
 ```
 
----
+### Test locally
 
-## ref
+```
+$ source credentials.sh
+$ go run main.go
+```
 
-https://developer.health.nokia.com/api?_ga=2.42632934.2129126591.1518093763-725386839.1518093763
-https://github.com/jrmycanady/nokiahealth
+
+
