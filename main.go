@@ -3,10 +3,11 @@ package main
 import (
 	"fmt"
 	"log"
-	"mash-slack-mybot/mynokiahealth"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/c-yokoyama/mash-slack-mybot/mynokiahealth"
 
 	"github.com/jrmycanady/nokiahealth"
 	"github.com/nlopes/slack"
