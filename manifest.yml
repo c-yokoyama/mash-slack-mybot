@@ -1,6 +1,0 @@
----
-applications:
-  - name: mash-slack-mybot
-    env: 
-        GOVERSION: go1.8.3
-        GOPACKAGENAME: go18_dep
