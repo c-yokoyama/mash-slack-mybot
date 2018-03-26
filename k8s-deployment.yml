@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mash-bot-deployment
+  labels:
+    app: mash-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mash-bot
+  template:
+    metadata:
+      labels:
+        app: mash-bot
+    spec:
+      containers:
+      - name:  mashbot
+        image: hogehoge/mash-slack-mybot:latest
