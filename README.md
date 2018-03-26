@@ -2,13 +2,7 @@
 
 ## Getting Started
 
-### Use dep
-
-```
-$ go get -u github.com/golang/dep/cmd/dep
-$ dep ensure
-```
-
+Edit credentials.sh from credentials.sh.sample
 ### Test locally
 
 ```
