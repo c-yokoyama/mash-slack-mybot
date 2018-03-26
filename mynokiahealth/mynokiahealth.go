@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/garyburd/redigo/redis"
 	. "github.com/jrmycanady/nokiahealth"
 )
 
@@ -17,10 +18,13 @@ type MeasureData struct {
 	MuscleMass string
 }
 
-var goalWeight string = "70.5"
+// Initial goal value
+var weightGoal = "70.0"
 
-// NewNokiaHealthUser initializes nokiahealth user with user credentislas
-func NewNokiaHealthUser() User {
+var conn redis.Conn
+
+// InitMyNokiaHealth intialize Nokiahealth User and redis connection
+func InitMyNokiaHealth() User {
 	client := NewClient(os.Getenv("NOKIA_COUSUMER_KEY"), os.Getenv("NOKIT_CONSUMER_SECRET"), "")
 	userid, _ := strconv.Atoi(os.Getenv("NOKIA_USERID"))
 	u := client.GenerateUser(os.Getenv("NOKIA_TOKEN"), os.Getenv("NOKIA_SECRET"), userid)
@@ -35,6 +39,16 @@ func NewNokiaHealthUser() User {
 		s := "Fail to generate user: " + m.Status.String()
 		log.Fatal(errors.New(s))
 	}
+
+	// Connect to redis
+	c, err := redis.Dial("tcp", "redis:6379")
+	if err != nil {
+		log.Fatal(err)
+	}
+	conn = c
+	// Update  weightGoal
+	// if r["goal"] == nil then continue
+
 	return u
 }
 
@@ -116,10 +130,12 @@ func DiffTodayWeightGoal(u User) string {
 
 }
 
+// [ToDO] Use redis
 func SetWeightGoal(goal float64) {
-	goalWeight = strconv.FormatFloat(goal, 'g', 4, 64)
+	weightGoal = strconv.FormatFloat(goal, 'g', 4, 64)
+	conn.Do("SET", "goal", weightGoal)
 }
 
 func getWeightGoal() string {
-	return goalWeight
+	return weightGoal
 }

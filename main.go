@@ -63,9 +63,9 @@ func getMeasureDetail(u nokiahealth.User) string {
 }
 
 func sendCronMessage() {
+	fmt.Println("sendCronMessage(): ")
 	res := getMeasureDetail(nokiaUser)
 	cronChanID := os.Getenv("CRON_CHAN_ID")
-	fmt.Println("cronChanID: " + cronChanID)
 	rtm.SendMessage(rtm.NewOutgoingMessage(res, cronChanID))
 }
 
@@ -104,7 +104,7 @@ func main() {
 	rtm = api.NewRTM()
 	go rtm.ManageConnection()
 
-	nokiaUser = mynokiahealth.NewNokiaHealthUser()
+	nokiaUser = mynokiahealth.InitMyNokiaHealth()
 	c := cron.New()
 	c.AddFunc(cronSpec, sendCronMessage)
 	c.Start()
