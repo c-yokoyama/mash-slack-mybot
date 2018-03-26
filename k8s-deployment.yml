@@ -16,4 +16,5 @@ spec:
     spec:
       containers:
       - name:  mashbot
-        image: hogehoge/mash-slack-mybot:latest
+        image:  gcr.io/hogehoge/mash-slack-mybot:latest
+        imagePullPolicy: Always 

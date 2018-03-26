@@ -2,6 +2,7 @@ package mynokiahealth
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -18,9 +19,10 @@ type MeasureData struct {
 	MuscleMass string
 }
 
+const redisUrl = "redis-sentinel:26379"
+
 // Initial goal value
 var weightGoal = "70.0"
-
 var conn redis.Conn
 
 // InitMyNokiaHealth intialize Nokiahealth User and redis connection
@@ -41,13 +43,21 @@ func InitMyNokiaHealth() User {
 	}
 
 	// Connect to redis
-	c, err := redis.Dial("tcp", "redis:6379")
+	c, err := redis.Dial("tcp", redisUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
 	conn = c
-	// Update  weightGoal
-	// if r["goal"] == nil then continue
+	fmt.Println("Connected to redis")
+	// Update weightGoal with stored value
+	s, err := redis.String(conn.Do("GET", "goal"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("####redis val: " + s)
+	if s != "" {
+		weightGoal = s
+	}
 
 	return u
 }
@@ -130,7 +140,6 @@ func DiffTodayWeightGoal(u User) string {
 
 }
 
-// [ToDO] Use redis
 func SetWeightGoal(goal float64) {
 	weightGoal = strconv.FormatFloat(goal, 'g', 4, 64)
 	conn.Do("SET", "goal", weightGoal)

@@ -17,7 +17,7 @@ import (
 var rtm *slack.RTM
 var nokiaUser nokiahealth.User
 
-const cronSpec = "TZ=Asia/Tokyo 30 11 * * * *"
+const cronSpec = "TZ=Asia/Tokyo * 30 11  * * *"
 
 func getHelpStr(botUserID string) string {
 	help := "機能一覧です！\n" +
