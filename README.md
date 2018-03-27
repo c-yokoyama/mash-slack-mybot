@@ -19,7 +19,7 @@ $ gcloud docker -- push gcr.io/<your-pj-name>/mash-slack-mybot
 
 Before creating this bot's pod, prepare redis.
 
-See https://github.com/tarosky/k8s-redis-ha
+See  https://github.com/kubernetes/kubernetes/tree/master/examples/storage/redis 
 
 ```
 $ kubectl create -f k8s-deployment.yml
