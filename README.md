@@ -9,10 +9,20 @@ Edit credentials.sh from credentials.sh.sample
 $ source credentials.sh
 $ go run main.go
 ```
----
+### Deploy to GKE
 
-### ref
+```
+$ docker build -t mash-slack-mybot:latest .
+$ docker tag mash-slack-mybot gcr.io/<your-pj-name>/mash-slack-mybot
+$ gcloud docker -- push gcr.io/<your-pj-name>/mash-slack-mybot
+```
 
-https://github.com/tarosky/k8s-redis-ha
+Before creating this bot's pod, prepare redis.
+See https://github.com/kubernetes/examples/blob/master/staging/storage/redis/README.md
+
+```
+$ kubectl create -f k8s-deployment.yml
+```
+
 
 
