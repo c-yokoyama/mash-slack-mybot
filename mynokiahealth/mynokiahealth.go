@@ -19,7 +19,7 @@ type MeasureData struct {
 	MuscleMass string
 }
 
-const redisURL = "redis-sentinel:26379"
+const redisURL = "redis:6379"
 
 // Initial goal value
 var weightGoal = "70.5"
@@ -43,9 +43,10 @@ func InitMyNokiaHealth() User {
 	}
 
 	// Connect to redis
-	rc = redis.NewFailoverClient(&redis.FailoverOptions{
-		MasterName:    "mymaster",
-		SentinelAddrs: []string{redisURL},
+	rc = redis.NewClient(&redis.Options{
+		Addr:     redisURL,
+		Password: "", // no password set
+		DB:       0,  // use default DB
 	})
 	s, err := rc.Get("goal").Result()
 	if err == redis.Nil {
